@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas id="canvas" width="300" height="300"></canvas>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.141.0/build/three.module.js",
+          "GLTFLoader": "https://unpkg.com/three@0.141.0/examples/jsm/loaders/GLTFLoader.js"
+        }
+      }
+    </script>
+    <script type="module">
+      import { GLTFLoader } from "GLTFLoader";
+      import * as THREE from "three";
+
+      const scene = new THREE.Scene();
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas: document.querySelector("#canvas"),
+        antialias: true, // 계단현상 줄이기
+      });
+      // cmyk->rgb
+      renderer.outputEncoding = THREE.sRGBEncoding;
+
+      // 3D모델에서 보여줄때 필요한 것들
+      // 1. 카메라 2.조명 3.배경
+
+      // 1. 카메라 - PerspectiveCamera(원근법 o) / OrthographicCamera(원근법 x)
+      const camera = new THREE.PerspectiveCamera(30, 1);
+      camera.position.set(0, 0, 5);
+
+      // 2.조명
+      // DirectionalLight - 태양광
+      // ambientLight - 모든 개체들에게 전체적으로 빛
+      // pointLight - 동그란광원(스팟)
+      const light = new THREE.DirectionalLight();
+
+      // 3. 배경
+      scene.background = new THREE.Color("white");
+
+      const loader = new GLTFLoader();
+      // 시바를 로드
+      loader.load("shiba/scene.gltf", function (gltf) {
+        scene.add(gltf.scene);
+
+        // 애니메이션
+        function animate() {
+          // 1초에 60번 실행 됨
+          requestAnimationFrame(animate);
+          // 자동 회전이 아닌 마우스 컨트롤을 사용하고 싶으면 OrbitControl사용하면 됨
+          gltf.scene.rotation.y += 0.005;
+          renderer.render(scene, camera);
+        }
+        animate();
+      });
+    </script>
+  </body>
+</html>
